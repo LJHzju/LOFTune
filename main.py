@@ -7,7 +7,7 @@ from sqlalchemy_utils import database_exists, create_database
 
 
 def conf_check():
-    from config.common import sql_base_path, spark_tune_db_url, cwd, db_name, config_path
+    from config.common import sql_base_path, loftune_db_url, cwd, db_name, config_path
     from config.encoder_config import tree_sitter_sql_lib_path
 
     if not os.path.exists(sql_base_path):
@@ -23,9 +23,9 @@ def conf_check():
         sys.exit()
 
     pymysql.install_as_MySQLdb()
-    if not database_exists(spark_tune_db_url):
+    if not database_exists(loftune_db_url):
         print(f"Database {db_name} does not exist, creating database according to the connection in config.py.")
-        create_database(spark_tune_db_url)
+        create_database(loftune_db_url)
 
     if not os.path.exists(f'{cwd}/data'):
         os.makedirs(f'{cwd}/data')

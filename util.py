@@ -18,7 +18,7 @@ embedding_columns = [f'task_embedding_{_}' for _ in range(0, sql_embedding_dim)]
 
 
 def create_session():
-    engine = create_engine(spark_tune_db_url)
+    engine = create_engine(loftune_db_url)
     session = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=engine))
     return session()
 
