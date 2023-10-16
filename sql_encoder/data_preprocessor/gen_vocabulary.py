@@ -10,7 +10,7 @@ import json
 
 
 def get_node_types():
-    node_type_file_path = f'{base_dir}/tree-sitter/src/node-types.json'
+    node_type_file_path = f'node-type-file-path'
     node_types = json.load(open(node_type_file_path))
     node_type_set = set()
     for item in node_types:

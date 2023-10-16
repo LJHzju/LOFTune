@@ -1,8 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-description: Knob information
-
-"""
 import os
 import random
 import sys

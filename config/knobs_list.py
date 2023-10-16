@@ -118,7 +118,7 @@ NON_RESOURCE_KNOB_DETAILS = {
     # Fraction for execution and storage memory
     'spark.memory.fraction': {
         'type': KnobType.NUMERIC,
-        'range': [0.4, 0.85, 0.01],
+        'range': [0.35, 0.85, 0.01],
         'default': 0.6,
         'range_adjustable': True,
         'limit_exceed': [False, False]
@@ -222,8 +222,8 @@ EXTRA_KNOBS = {
     'spark.submit.deployMode': 'cluster',
     'spark.eventLog.enabled': 'true',
     'spark.eventLog.compress': 'false',
-    'spark.yarn.jars': 'hdfs://ip:port/home/users/loftune/environment/spark-3.2.4/jars/*.jar',
-    'spark.eventLog.dir': 'hdfs://ip:port/home/users/loftune/environment/spark-3.2.4/log',
+    'spark.yarn.jars': 'jar-path',
+    'spark.eventLog.dir': 'event-log-path',
     'spark.yarn.maxAppAttempts': 1,
     'spark.sql.catalogImplementation': 'hive',
     'spark.memory.offHeap.enabled': 'true',

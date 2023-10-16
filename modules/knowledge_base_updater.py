@@ -11,7 +11,7 @@ from config.knobs_list import *
 from util import check_sample, add_scale_dict, create_session, embedding_columns, get_resource_usage_of_config
 from modules.regression_model import PerformanceModel
 
-warnings.filterwarnings("ignore", category=UserWarning)  # 更改取值范围后，范围长度可能无法整除步长，会一直报WARNING
+warnings.filterwarnings("ignore", category=UserWarning)
 warnings.filterwarnings("ignore", category=optuna.exceptions.ExperimentalWarning)
 
 
