@@ -15,6 +15,6 @@ do
   # Run the tasks using the main.py script
   for task in "${new_tasks[@]}"
   do
-    python main.py --mode ${mode} --workload "${workload}" --data_size "${data_size}" --type recommend-config-exp3 --task_id "${task}" --epochs 1
+    python main.py --mode ${mode} --workload "${workload}" --data_size "${data_size}" --type recommend-config --task_id "${task}" --epochs 35
   done
 done

@@ -34,15 +34,15 @@ def conf_check():
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--workload', type=str, default="", choices=['IMDB', 'TPCDS', 'TPCH', 'JOIN', 'SCAN', 'AGGR'],
-                        help="The name of SQL for tuning.")
-    parser.add_argument('--data_size', type=int, default=0, help="The name of SQL for tuning.")
+                        help="The benchmark name.")
+    parser.add_argument('--data_size', type=int, default=0, help="The data size in GB.")
     parser.add_argument('--type', type=str, default='',
                         choices=['init-tuning-data', 'recommend-config',
                                  'recommend-config-no-history', 'update-history',
                                  'recommend-config-alternately'],
                         help='Decide what to do.')
     parser.add_argument('--mode', type=str, default='single', choices=['single', 'multi'])
-    parser.add_argument('--task_id', type=str, default='', help='The task for operation.')
+    parser.add_argument('--task_id', type=str, default='', help='The workload id (e.g., q2, q9, q11) for operation.')
     parser.add_argument('--epochs', type=int, default=2, help='The number of sampled configs for each history task.')
     parser.add_argument('--random_epochs', type=int, default=10, help='The number of sampled configs for each history task.')
     opt = parser.parse_args()

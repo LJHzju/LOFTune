@@ -29,7 +29,7 @@ def run_task(task_id, config):
         sqls = ['AGGR']
 
     os.chdir(os.getenv("SPARK_HOME"))
-    cmd = "./benchmarks/scripts/run_benchmark_task.sh"
+    cmd = "run-spark-command"
 
     app_idx = []
     for index, sql in enumerate(sqls):

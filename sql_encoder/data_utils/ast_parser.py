@@ -13,7 +13,6 @@ class ASTParser:
         self.token_vocab = token_vocab
         self.ignore_types = ["\n", ",", ".", "(", ")", "'", ";", "comment"]
 
-    # Simplify the AST
     def simplify_ast(self, tree, text):
         root = tree.root_node
 

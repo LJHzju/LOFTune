@@ -19,4 +19,4 @@ loftune_db_url = f'mysql+mysqldb://{db_user}:{db_password}@{db_host}:{db_port}/{
 big_gap = '=' * 130
 small_gap = '*' * 20
 
-log_base_path = f"/home/users/History Data of Baselines/{mode}/Ours/{workload}_{data_size}G/uncompressed/"
+log_base_path = f"log-base-path"
