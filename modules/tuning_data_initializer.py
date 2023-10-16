@@ -13,7 +13,7 @@ from util import create_session, embedding_columns
 def load_history_tasks(sqls_in_all_history_data):
     with open(history_task_file_path, "r") as history_task_file:
         history_tasks = history_task_file.read().splitlines()
-        history_tasks = set(history_tasks) & set(sqls_in_all_history_data)  # 取交集，万一历史数据里面漏了几条SQL，不会报错
+        history_tasks = set(history_tasks) & set(sqls_in_all_history_data)
 
     return list(history_tasks)
 
@@ -48,7 +48,7 @@ def gen_matched_history_tasks(connection):
 
 
 def init_tuning_data(file_path=all_history_data_file_path, clear_content=False):
-    with create_session() as db_session:  # with会回收资源
+    with create_session() as db_session:
         db_session.execute(text("DROP TABLE IF EXISTS task_embeddings"))
         db_session.execute(text("DROP TABLE IF EXISTS task_history"))
         db_session.execute(text("DROP TABLE IF EXISTS task_best_config"))

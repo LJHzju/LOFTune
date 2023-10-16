@@ -8,9 +8,6 @@ import subprocess
 
 
 def write_config_file(config, file_name):
-    """
-        write config to config_file
-    """
     with open(file_name, "w") as conf_file:
         for knob, value in EXTRA_KNOBS.items():
             if knob in config:
@@ -30,7 +27,6 @@ def run_task(task_id, config):
         sqls = ['SCAN']
     elif workload == 'AGGR':
         sqls = ['AGGR']
-
 
     os.chdir(os.getenv("SPARK_HOME"))
     cmd = "./benchmarks/scripts/run_benchmark_task.sh"

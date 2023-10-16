@@ -2,12 +2,10 @@ import math
 
 from sklearn.model_selection import train_test_split
 from quantile_forest import RandomForestQuantileRegressor
-from config.knobs_list import *
 from util import *
 import numpy as np
 import pandas as pd
 from optuna.samplers import TPESampler
-from optuna.integration import BoTorchSampler
 import optuna
 import random
 
@@ -57,13 +55,11 @@ class PerformanceModel:
 
         cal_lower, cal_mean, cal_upper = self.predict_ci(X_cal)
         n = len(y_cal)
-        self.cal_score = np.maximum(y_cal - cal_lower, cal_upper - y_cal)
-        # 防止n ≤ 10时出现分位数 > 1的情况
+        self.cal_score = np.maximum(cal_lower - y_cal, y_cal - cal_upper)
         self.q_hat = np.quantile(self.cal_score, min(1, np.ceil((n + 1) * (1 - alpha)) / n), method='higher')
 
         self.logger.info(f"Model train finished using {len(X_train)} records with {len(X_cal)} calibrations.")
 
-    # 预测置信区间和值
     def predict_ci(self, data):
         if data.ndim == 1:
             data = data.reshape(1, -1)
@@ -71,7 +67,6 @@ class PerformanceModel:
         pred_upper = np.maximum(pred_upper, pred_lower + 1e-6)
         return pred_lower, pred_mean, pred_upper
 
-    # 预测值
     def predict(self, data):
         if data.ndim == 1:
             data = data.reshape(1, -1)
@@ -107,15 +102,11 @@ class PerformanceModel:
             out = -self.predict(sample)[0]
         else:
             pred_lower, pred_mean, pred_upper = self.predict_ci(sample)
-            sample_score = np.maximum(pred_mean - pred_lower, pred_upper - pred_mean)
-            p_value = np.mean(self.cal_score >= sample_score)
             out = (pred_upper + self.q_hat) / (pred_lower - self.q_hat)
-            # out = (pred_upper + self.q_hat * (1 - p_value)) / (pred_lower - self.q_hat * (1 - p_value))[0]
         return out
 
     def resource_constraint(self, trial):
         total_cores, total_memory = get_resource_usage_of_config(trial.params)
-        # 可行域是≤0
         c0 = self.core_thresholds[0] - total_cores
         c1 = total_cores - self.core_thresholds[1]
         m1 = self.memory_thresholds[0] - total_memory

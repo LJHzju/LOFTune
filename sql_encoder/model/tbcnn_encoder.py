@@ -60,7 +60,7 @@ class ConvolutionLayer(nn.Module):
         self.config = config
         self.conv_num = self.config['num_conv_layers']
         config['output_size'] = self.config['conv_output']
-        config['feature_size'] = config['embedding_dim']  # embedding_dim是最终输出的维数，conv_output是卷积输出的维数
+        config['feature_size'] = config['embedding_dim']
         self.conv_nodes = nn.ModuleList([ConvNode(config=config) for _ in range(self.conv_num)])
 
     def forward(self, nodes, children, children_embedding):

@@ -71,7 +71,7 @@ def load_info_from_lines(lines_of_apps):
         run_time_of_apps.append(finish_time - start_time)
         status_of_apps.append(app_succeeded)
 
-    return sum(run_time_of_apps), all(status_of_apps)  # 全部都是True，才会返回True
+    return sum(run_time_of_apps), all(status_of_apps)
 
 
 def gen_task_embedding(task_id):
@@ -96,7 +96,7 @@ def gen_sql_list():
     all_sql_list = []
     for root, dirs, files in os.walk(f"{sql_base_path}/{str.lower(workload)}"):
         for file in files:
-            all_sql_list.append(file[:-4])  # 去除".sql"
+            all_sql_list.append(file[:-4])
     return all_sql_list
 
 
@@ -126,9 +126,6 @@ def add_embedding_to_apps(apps, old_embeddings, logger=None):
 
 
 def clear_scale_dict(origin_dict):
-    """
-        remove scale('k','m','g',...) from dict
-    """
     for key, value in origin_dict.items():
         val_type = KNOB_DETAILS[key]['type']
         if val_type == KnobType.INTEGER and isinstance(value, str):
@@ -139,14 +136,10 @@ def clear_scale_dict(origin_dict):
             candidates = KNOB_DETAILS[key]['candidates']
             index = candidates.index(value)
             origin_dict[key] = index
-            # origin_dict[key] = 1 if value == 'true' else 0
     return origin_dict
 
 
 def add_scale_dict(origin_dict):
-    """
-        add scale('k','m','g',...) to dict
-    """
     new_dict = copy.deepcopy(origin_dict)
     for knob, details in KNOB_DETAILS.items():
         if knob not in new_dict.keys():

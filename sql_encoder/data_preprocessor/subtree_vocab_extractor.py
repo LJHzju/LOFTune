@@ -7,7 +7,6 @@ from sql_encoder.data_utils.ast_parser import ASTParser
 from sql_encoder.data_preprocessor.subtree_util import extract_subtrees
 
 
-# 处理file_path指向的文件，读取该文件内的所有SQL，并将每条SQL拆成若干个子树
 def process_file(file_path):
     ast_parser = ASTParser()
     with open(file_path, "r", errors="ignore", encoding='UTF-8') as f:

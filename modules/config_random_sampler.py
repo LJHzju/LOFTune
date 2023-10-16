@@ -17,7 +17,7 @@ import time
 
 
 def sample_and_scale_to_configs(knob_names, num, seed):
-    sampler = Sobol(d=len(knob_names), seed=seed)  # 随机种子在这里指定
+    sampler = Sobol(d=len(knob_names), seed=seed)
     samples = sampler.random_base2(num)
     qualified_configs = []
     for sample in samples:
@@ -25,7 +25,6 @@ def sample_and_scale_to_configs(knob_names, num, seed):
         for idx in range(len(knob_names)):
             name = knob_names[idx]
             details = KNOB_DETAILS[name]
-            # sample_value = 0.5 * (sample[idx] + 1)
             sample_value = sample[idx]
             knob_type = details['type']
             if knob_type == KnobType.INTEGER:
@@ -43,7 +42,6 @@ def sample_and_scale_to_configs(knob_names, num, seed):
             elif knob_type == KnobType.CATEGORICAL:
                 candidates = details['candidates']
                 index = int(sample_value * len(candidates))
-                # 免得索引越界
                 eval_value = index if index < len(candidates) else len(candidates) - 1
             else:
                 print('Wrong knob type: ', knob_type)
@@ -91,7 +89,6 @@ def generate_non_resource_configs(num_sampled_configs, seed):
 
 
 def set_parallelism(config, seed):
-    # spark.default.parallelism, spark.sql.shuffle.partitions两个参数与分配的核数有关，单独设置
     total_cores, total_memory = get_resource_usage_of_config(config)
     random.seed(seed)
     if 'spark.default.parallelism' in KNOBS:

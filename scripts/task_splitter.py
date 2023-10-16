@@ -22,7 +22,7 @@ if __name__ == "__main__":
         all_task_list = history_data['task_id'].unique().tolist()
 
     random.seed(opt.seed)
-    history_tasks = random.sample(all_task_list, opt.history_task_num)  # 抽取history_task_num条SQL
+    history_tasks = random.sample(all_task_list, opt.history_task_num)
     new_tasks = list(set(all_task_list) - set(history_tasks))
 
     with open(new_task_file_path, "w") as file:

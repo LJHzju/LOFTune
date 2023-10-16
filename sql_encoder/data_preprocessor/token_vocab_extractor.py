@@ -6,7 +6,6 @@ from tokenizers.pre_tokenizers import Whitespace
 from sqlglot.tokens import Tokenizer as SQLTokenizer
 
 
-# 处理file_path指向的文件，读取该文件内的所有SQL，并拆成token
 def process_file(file_path):
     with open(file_path, "r", errors="ignore", encoding='UTF-8') as f:
         sqls = f.readlines()

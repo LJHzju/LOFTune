@@ -3,9 +3,6 @@ from config.encoder_config import tree_sitter_sql_lib_path
 
 
 class ASTParser:
-    """
-        parse the ast-tree.
-    """
     def __init__(self, type_vocab=None, token_vocab=None):
         SQL_LANGUAGE = Language(tree_sitter_sql_lib_path, 'sql')
 
@@ -18,9 +15,6 @@ class ASTParser:
 
     # Simplify the AST
     def simplify_ast(self, tree, text):
-        """
-            use bfs to scan the AST.
-        """
         root = tree.root_node
 
         num_nodes = 0
@@ -67,7 +61,6 @@ class ASTParser:
                     else:
                         child_sub_tokens_id = [x for x in child_sub_tokens_id if x != 0]
 
-                    # print(children_sub_token_ids)
                     child_json = {
                         "node_type": child_type,
                         "node_type_id": child_type_id,

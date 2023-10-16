@@ -1,5 +1,3 @@
-# 将语法树按照一定规则，拆分为若干子树
-
 from copy import deepcopy
 
 
@@ -9,7 +7,6 @@ ignore_children_types = ["string", "NULL"]
 unfold_expression_types = ['unary_expression', 'binary_expression', 'boolean_expression']
 
 
-# 生成树的字符串表示
 def gen_tree_str(node):
     node_str = f"{node['type']}"
     if len(node['children']) > 0:
@@ -32,7 +29,6 @@ def swap_node(node_1, node_2):
         return deepcopy(node_2), deepcopy(node_1)
 
 
-# 根据交换律减少子树，如，string + number和number + string视为同一个子树
 def modify_subtree_by_commutation(current_node):
     if current_node['type'] == 'boolean_expression':
         if len(current_node['children']) == 3:
@@ -50,7 +46,6 @@ def modify_subtree_by_commutation(current_node):
                 current_node['children'][2] = operand_2
 
 
-# 抽取以node为根节点的子树，只取node和node往下一层，如果node的孩子里有一些特殊的结点，就再往下展开一层
 def extract_subtree_of_node(node):
     subtree = {
         "type": node['type'],
@@ -67,7 +62,6 @@ def extract_subtree_of_node(node):
             "children": []
         }
 
-        # 只往下展开一层
         if child_type in unfold_expression_types:
             for child_child in child['children']:
                 subtree_child['children'].append({"type": child_child['type'], "parent": child_type, "children": []})
@@ -79,7 +73,7 @@ def extract_subtree_of_node(node):
             subtree_child['children'].append({"type": function_name_node['type'], "parent": child_type, "children": []})
             children_nodes.append(child)
 
-        elif child_type == 'asterisk_expression':  # 星号表达式，SELECT * / SELECT a.* / SELECT COUNT(*)
+        elif child_type == 'asterisk_expression':
             subtree_child = child
 
         else:
@@ -140,7 +134,6 @@ def extract_order_by_subtrees(node):
     return subtrees, children_nodes
 
 
-# 抽取显式JOIN的子树
 def extract_explicit_join_subtree(node):
     subtree = {
         "type": node['type'],
@@ -155,7 +148,6 @@ def extract_explicit_join_subtree(node):
             subtree_child = child
         elif child_type == 'join_condition':
             subtree_child, _ = extract_subtree_of_node(child)
-            # join_condition只有两个孩子
             children_nodes.append(child['children'][1])
         elif child_type == 'AS':
             continue
@@ -172,7 +164,6 @@ def extract_explicit_join_subtree(node):
     return subtree, children_nodes
 
 
-# 抽取select_clause_body结点的子树
 def extract_select_clause_body_subtrees(node):
     subtrees = []
 
@@ -198,8 +189,6 @@ def extract_select_clause_body_subtrees(node):
     return subtrees
 
 
-# 抽取隐式JOIN的子树
-# 孩子只有两种可能：表名/子查询
 def extract_implicit_join_subtrees(node):
     subtrees = []
 
@@ -229,7 +218,6 @@ def extract_implicit_join_subtrees(node):
     return subtrees, children_nodes
 
 
-# 抽取select_subexpression结点的子树，往下展开两层，只把最后一层的当作要塞入队列的孩子
 def extract_subquery_root_subtree(node):
     subtree = {
         "type": node['type'],
@@ -256,11 +244,9 @@ def extract_subquery_root_subtree(node):
     return subtree, children_nodes
 
 
-# 提取with的子树
 def extract_with_subtrees(node):
     subtrees = []
     children_nodes = []
-    # with_clause(WITH)不要了
     for child in node['children'][1:]:
         # cte
         subtree, nodes = extract_subquery_root_subtree(child)
@@ -274,7 +260,6 @@ def extract_with_subtrees(node):
     return subtrees, children_nodes
 
 
-# 抽取子树
 def extract_subtree(root):
     subtrees = []
     queue = [root]
@@ -282,19 +267,18 @@ def extract_subtree(root):
         current_node = queue.pop(0)
         current_node_type = current_node['type']
 
-        # 叶结点
         if len(current_node['children']) == 0:
             continue
 
-        if current_node_type == 'from_clause':  # from_clause(FROM, join_clause)这种子树不要也无所谓吧……
-            if current_node['children'][1]['type'] != 'join_clause':  # 隐式JOIN
+        if current_node_type == 'from_clause':
+            if current_node['children'][1]['type'] != 'join_clause':
                 implicit_join_subtrees, children_nodes = extract_implicit_join_subtrees(current_node)
                 subtrees.extend(implicit_join_subtrees)
                 queue.extend(children_nodes)
             else:
                 queue.extend(current_node['children'])
 
-        elif current_node_type == 'join_clause':  # 显式JOIN
+        elif current_node_type == 'join_clause':
             explicit_join_subtree, children_nodes = extract_explicit_join_subtree(current_node)
             subtrees.append(explicit_join_subtree)
             queue.extend(children_nodes)
@@ -326,7 +310,7 @@ def extract_subtree(root):
             subtrees.extend(separated_subtrees)
             queue.extend(children_nodes)
 
-        elif current_node_type == 'select_clause':  # "select_clause(SELECT, select_clause_body)"这个子树每个SQL都有，没必要留着
+        elif current_node_type == 'select_clause':
             subtree, children_nodes = extract_subtree_of_node(current_node)
             queue.extend(children_nodes)
 
@@ -359,7 +343,6 @@ def extract_sub_queries(root):
     return root, sub_queries
 
 
-# 把tree-sitter的树转变为字典形式，方便后续处理
 def convert_tree(root):
     queue = [root]
     root_json = {
@@ -372,12 +355,10 @@ def convert_tree(root):
         current_node = queue.pop(0)
         current_node_json = queue_json.pop(0)
 
-        # 统一dotted_name和identifier
         if current_node.type == "dotted_name":
             current_node_json["type"] = "identifier"
             continue
 
-        # 统一两种不等号样式
         elif current_node.type == "<>":
             current_node_json["type"] = "!="
             continue
@@ -419,7 +400,6 @@ def convert_subtrees_to_str(subtrees, is_sub_query):
     return subtree_strs
 
 
-# 抽取语法树tree的所有子树，返回一个dict，表示每个子树在tree内出现的次数
 def extract_subtrees(tree):
     root = convert_tree(tree.root_node)
 
