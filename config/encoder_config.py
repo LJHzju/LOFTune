@@ -6,7 +6,7 @@ tree_sitter_sql_lib_path = f"{cwd}/sql_encoder/tree-sitter/sql.so"
 
 dataset = 'text2sql_400k'
 device = torch.device('cpu')
-sql_embedding_dim = 768
+sql_embedding_dim = 150
 
 data_path = {
     'node_type_vocab_model_path': f'{base_dir}/data/{dataset}/{dataset}_type.json',
@@ -17,9 +17,9 @@ data_path = {
 }
 
 train_config = {
-    'num_epoch': 2,
-    'batch_size': 8,
-    'lr': 0.001,
+    'num_epoch': 30,
+    'batch_size': 16,
+    'lr': 0.0002,
     'weight_decay': 1e-8,
     'log_step_interval': 1000,
     'checkpoint_file_path': f'{base_dir}/checkpoints/checkpoint',
@@ -38,4 +38,11 @@ encoder_config = {
 
 subtree_prediction_config = {
     'subtree_dim': sql_embedding_dim
+}
+
+sequence_tagging_config = {
+    'num_labels': 4,  # other/table/column/alias
+    'hidden_dim': sql_embedding_dim,
+    'embedding_dim': sql_embedding_dim,
+    'dropout_rate': 0.3
 }

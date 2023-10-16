@@ -9,9 +9,8 @@ import os
 import json
 
 
-# 获取所有的语法树节点类别
 def get_node_types():
-    node_type_file_path = f'{base_dir}/tree-sitter/src/node-types.json'  # 编译sql.so的时候会生成，路径一般不用改
+    node_type_file_path = f'{base_dir}/tree-sitter/src/node-types.json'
     node_types = json.load(open(node_type_file_path))
     node_type_set = set()
     for item in node_types:
@@ -19,7 +18,6 @@ def get_node_types():
     return list(node_type_set)
 
 
-# 生成node type的词表
 def gen_type_vocab(output_path):
     print("Node type vocabulary generation starts...", flush=True)
     if os.path.exists(output_path):
@@ -36,7 +34,6 @@ def gen_type_vocab(output_path):
     print(big_gap, flush=True)
 
 
-# 生成token的词表
 def gen_token_vocab(queries_file, output_path):
     print("Node token vocabulary generation starts...", flush=True)
     if os.path.exists(output_path):
@@ -48,7 +45,6 @@ def gen_token_vocab(queries_file, output_path):
     print(big_gap, flush=True)
 
 
-# 生成subtree的词表
 def gen_subtree_vocab(queries_file, output_path):
     print("Subtree vocabulary generation starts...", flush=True)
     if os.path.exists(output_path):
@@ -60,7 +56,6 @@ def gen_subtree_vocab(queries_file, output_path):
     print(big_gap, flush=True)
 
 
-# 每次调用都重新生成，避免出现不一致
 def gen_all_vocab(data_path):
     training_queries_path = data_path['training_queries_path']
 

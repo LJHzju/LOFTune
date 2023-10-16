@@ -2,7 +2,7 @@ workload = 'TPCDS'
 data_size = 100
 mode = 'single'
 
-hdfs_path = "http://10.214.151.183:9870"
+hdfs_path = "hdfs_ip:port"
 event_log_hdfs_path = "/home/users/loftune/environment/spark-3.2.4/log"
 
 alpha = 0.1

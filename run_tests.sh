@@ -10,7 +10,6 @@ do
   data_size=${array[1]}
 
   # Get a list of all SQL files in the directory
-  # shellcheck disable=SC2207
   new_tasks=($(cat "$new_tasks_file"))
 
   # Run the tasks using the main.py script

@@ -37,7 +37,7 @@ if __name__ == "__main__":
                         help="The name of SQL for tuning.")
     parser.add_argument('--data_size', type=int, default=0, help="The name of SQL for tuning.")
     parser.add_argument('--type', type=str, default='',
-                        choices=['init-tuning-data', 'recommend-config', 'recommend-config-exp3',
+                        choices=['init-tuning-data', 'recommend-config',
                                  'recommend-config-no-history', 'update-history',
                                  'recommend-config-alternately'],
                         help='Decide what to do.')
@@ -62,30 +62,21 @@ if __name__ == "__main__":
         if opt.task_id == '':
             print("Please specify the task id.")
             sys.exit()
-        from modules.tuning import recommend_config_for_new_task
+        from modules.controller import recommend_config_for_new_task
         recommend_config_for_new_task(opt.task_id, opt.epochs)
-        
-    # python main.py --type recommend-config --task_id {the task id for config recommendation}
-    elif opt.type == 'recommend-config-exp3':
-        if opt.task_id == '':
-            print("Please specify the task id.")
-            sys.exit()
-        from modules.tuning import recommend_config_for_new_task_with_exp3
-        recommend_config_for_new_task_with_exp3(opt.task_id, opt.epochs)
 
-    # python main.py --type recommend-config --task_id {the task id for config recommendation}
     elif opt.type == 'recommend-config-alternately':
         if opt.task_id == '':
             print("Please specify the task id.")
             sys.exit()
-        from modules.tuning import recommend_config_alternately
+        from modules.controller import recommend_config_alternately
         recommend_config_alternately(opt.task_id, opt.epochs)
 
     elif opt.type == 'recommend-config-no-history':
         if opt.task_id == '':
             print("Please specify the task id.")
             sys.exit()
-        from modules.tuning import recommend_config_for_new_task_without_history
+        from modules.controller import recommend_config_for_new_task_without_history
         recommend_config_for_new_task_without_history(opt.task_id, random_sample_epochs=opt.random_epochs,
                                                       model_sample_epochs=opt.epochs)
 
@@ -95,6 +86,6 @@ if __name__ == "__main__":
         if opt.task_id == '':
             print("Please specify the task id.")
             sys.exit()
-        from modules.tuning import update_history_task
+        from modules.controller import update_history_task
         update_history_task(opt.task_id, opt.epochs)
 

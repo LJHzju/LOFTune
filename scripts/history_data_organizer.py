@@ -31,7 +31,6 @@ def get_valid_tasks(task_dict):
         if len(common_config_ids) >= lower_bound:
             valid_tuples += 1
             tuples[four_tuple] = common_config_ids
-            # print(f"Four tuple: {four_tuple}, Common Config ID: {common_config_ids}, Count: {len(common_config_ids)}")
     return tuples
 
 
@@ -98,7 +97,6 @@ def select_multi_sql_history():
     raw_history['task_id'], raw_history['config_id'] = split_cols.str[0], split_cols.str[2]
     raw_history['config_id'] = raw_history['config_id'].apply(lambda name: name.split("_")[0])
 
-    # 生成task_dist
     task_dict = {}
     for index, row in raw_history.iterrows():
         task_id = row['task_id']
@@ -135,7 +133,7 @@ def select_multi_sql_history():
                 elif knob_type == KnobType.NUMERIC:
                     type_calibrated_config[name] = float(value)
                 else:
-                    type_calibrated_config[name] = int(value)  # CATEGORICAL, 是索引
+                    type_calibrated_config[name] = int(value)
             record.update(type_calibrated_config)
             all_records.append(record)
 

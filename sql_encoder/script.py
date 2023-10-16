@@ -2,7 +2,7 @@ import sys
 from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parent.parent))
 
-from sql_encoder.training.subtree_trainer import SubtreeTrainer
+from sql_encoder.training.multi_task_trainer import MultiTaskTrainer
 from sql_encoder.encoder import SQLEncoder
 from sql_encoder.data_preprocessor.gen_vocabulary import gen_all_vocab
 from sql_encoder.data_preprocessor.dataset_processor import process_dataset
@@ -37,7 +37,7 @@ def process_data(dataset):
 
 
 def train():
-    trainer = SubtreeTrainer()
+    trainer = MultiTaskTrainer()
     trainer.load_checkpoint()
     trainer.train()
 

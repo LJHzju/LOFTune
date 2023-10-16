@@ -15,7 +15,6 @@ def add_new_embeddings_to_database(db_session, new_embeddings):
 
 
 def gen_best_config(db_session, apps):
-    # history_data入库
     history_data = pd.DataFrame(apps)
     pd.io.sql.to_sql(history_data, 'task_history', con=db_session.bind, if_exists='append', index=False)
 

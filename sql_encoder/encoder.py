@@ -24,9 +24,6 @@ class SQLEncoder:
         self.encoder = TBCNNEncoder(encoder_config).to(self.device)
 
     def load_encoder(self):
-        """
-            load checkpoint file
-        """
         if not os.path.exists(self.encoder_checkpoint_file_path):
             return False
         checkpoint = torch.load(self.encoder_checkpoint_file_path, map_location=self.device)
@@ -34,11 +31,6 @@ class SQLEncoder:
         return True
 
     def sqls_to_tensors(self, batch_sql_snippets):
-        """
-            convert sqls to tensors.
-            input: sqls [list]
-            output: tensors [list]
-        """
         batch_tree_indexes = []
         for sql_snippet in batch_sql_snippets:
             ast = self.ast_parser.parse(sql_snippet)
@@ -50,11 +42,6 @@ class SQLEncoder:
         return tensors
 
     def encode(self, sqls):
-        """
-            convert sqls to vectors.
-            input: sqls [list]
-            output: vectors [list]
-        """
         tensors = self.sqls_to_tensors(sqls)
         self.encoder.eval()
         with torch.no_grad():

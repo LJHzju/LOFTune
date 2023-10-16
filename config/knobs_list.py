@@ -155,7 +155,7 @@ NON_RESOURCE_KNOB_DETAILS = {
         'range': [8 * 1024, 32 * 1024 if workload != 'IMDB' else 16 * 1024, 128],
         'default': 10 * 1024,
         'range_adjustable': True,
-        'limit_exceed': [False, False],  # IMDB不能够超过16m
+        'limit_exceed': [False, False],
         'unit': Unit.KB.value
     },
     # Specifies the size of the batch used for column caching
@@ -185,10 +185,10 @@ NON_RESOURCE_KNOB_DETAILS = {
     },
     # Decides whether to compress broadcast variables before sending
     'spark.broadcast.compress': {
-        'type': KnobType.CATEGORICAL,  # 数据类型
-        'candidates': ['false', 'true'],  # [可选值1, 可选值2, ...]
-        'default': 'true',  # Spark默认值
-        'range_adjustable': False  # 历史采样的过程中，取值范围是否可以基于最优值变化
+        'type': KnobType.CATEGORICAL,
+        'candidates': ['false', 'true'],
+        'default': 'true',
+        'range_adjustable': False
     },
     # Decides whether to compress serialized RDD partitions
     'spark.rdd.compress': {
@@ -222,8 +222,8 @@ EXTRA_KNOBS = {
     'spark.submit.deployMode': 'cluster',
     'spark.eventLog.enabled': 'true',
     'spark.eventLog.compress': 'false',
-    'spark.yarn.jars': 'hdfs://node183:9000/home/users/loftune/environment/spark-3.2.4/jars/*.jar',
-    'spark.eventLog.dir': 'hdfs://node183:9000/home/users/loftune/environment/spark-3.2.4/log',
+    'spark.yarn.jars': 'hdfs://ip:port/home/users/loftune/environment/spark-3.2.4/jars/*.jar',
+    'spark.eventLog.dir': 'hdfs://ip:port/home/users/loftune/environment/spark-3.2.4/log',
     'spark.yarn.maxAppAttempts': 1,
     'spark.sql.catalogImplementation': 'hive',
     'spark.memory.offHeap.enabled': 'true',
