@@ -41,7 +41,6 @@ class TokenVocabExtractor:
                 file_path = os.path.join(subdir, file)
                 file_paths.append(file_path)
 
-        # 并行
         with concurrent.futures.ProcessPoolExecutor(max_workers=int(os.cpu_count() / 2)) as executor:
             results = executor.map(process_file, file_paths)
 
