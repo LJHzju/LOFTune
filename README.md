@@ -13,8 +13,8 @@ This repository contains the source code for our paper: **LOFTune: A Low-overhea
 
 # Datasets
 ***
-- [TPCDS](https://www.tpc.org/tpcds/)
-- [TPCH](https://www.tpc.org/tpch/)
+- [TPCDS(20G and 100G)](https://www.tpc.org/tpcds/)
+- [TPCH(20G)](https://www.tpc.org/tpch/)
 - [IMDB](http://homepages.cwi.nl/~boncz/job/imdb.tgz)
 
 # Structure
