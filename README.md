@@ -31,4 +31,5 @@ This repository contains the source code for our paper: **LOFTune: A Low-overhea
 # Usage
 ***
 1. Download datasets
-2. 
+2. Set mode and workloads in run_tests.sh
+3. Execute run_tests.sh
