@@ -1,13 +1,21 @@
-import os
 import logging.config
+import os
+import joblib
 
 from sql_encoder.data_utils.data_loader import DataLoader
 from config.encoder_config import *
-from config.logging_config import LOGGING_CONFIG
+from config.logging_config import *
 from tokenizers import Tokenizer
-import pickle
 
 logging.config.dictConfig(LOGGING_CONFIG)
+
+
+def load_buckets(final_buckets_path):
+    buckets = {}
+    for subdir, dirs, files in os.walk(final_buckets_path):
+        for file in files:
+            buckets[int(file)] = joblib.load(os.path.join(subdir, file))
+    return buckets
 
 
 class BaseTrainer:
@@ -17,8 +25,8 @@ class BaseTrainer:
         self.type_vocab = Tokenizer.from_file(data_path['node_type_vocab_model_path'])
         self.token_vocab = Tokenizer.from_file(data_path['node_token_vocab_model_path'])
 
-        self.training_buckets = pickle.load(open(data_path['training_data_path'], "rb"))
-        self.evaluation_buckets = pickle.load(open(data_path['evaluation_data_path'], "rb"))
+        self.training_buckets = load_buckets(data_path['training_data_path'])
+        self.evaluation_buckets = load_buckets(data_path['evaluation_data_path'])
 
         self.batch_size = train_config['batch_size']
         self.train_data_loader = DataLoader(self.batch_size)
@@ -39,7 +47,6 @@ class BaseTrainer:
 
     def load_checkpoint(self):
         if not os.path.exists(self.checkpoint_file_path):
-            print("Checkpoint file not found, start training from the scratch...")
             return
         checkpoint = torch.load(self.checkpoint_file_path)
         self.model.load_state_dict(checkpoint['model_state_dict'])
@@ -47,7 +54,7 @@ class BaseTrainer:
         self.start_epoch = checkpoint['epoch'] + 1
 
     def load_batch_tree_data(self, batch_data):
-        batch_node_type = torch.from_numpy(batch_data["batch_node_type_id"]).to(self.device)
+        batch_node_type = torch.from_numpy(batch_data["batch_node_type_id"]).to(self.device, non_blocking=True)
         batch_node_tokens = torch.from_numpy(batch_data["batch_node_tokens_id"]).to(self.device)
         batch_children_index = torch.from_numpy(batch_data["batch_children_index"]).to(self.device)
 
@@ -59,4 +66,4 @@ class BaseTrainer:
     def save_model(self, epoch):
         torch.save({'epoch': epoch, 'model_state_dict': self.model.state_dict(),
                     'optimizer_state_dict': self.optimizer.state_dict()}, self.checkpoint_file_path)
-        torch.save({'model_state_dict': self.model.encoder.state_dict()}, self.encoder_checkpoint_file_path)
+        torch.save({'model_state_dict': self.model.encoder.state_dict()}, f"{self.encoder_checkpoint_file_path}_{epoch}")

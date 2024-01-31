@@ -5,10 +5,8 @@ import copy
 import warnings
 from sqlalchemy import text
 
-from config.common import big_gap
-from config.config import *
 from config.knobs_list import *
-from util import check_sample, add_scale_dict, create_session, embedding_columns, get_resource_usage_of_config
+from util import check_sample, add_scale_dict, create_session, embedding_columns
 from modules.regression_model import PerformanceModel
 
 warnings.filterwarnings("ignore", category=UserWarning)
@@ -77,6 +75,7 @@ def update_history(update_task_id, epoch_id, logger, weights=None):
                     f"memory [{memory_thresholds[0]}m, {memory_thresholds[1]}m].")
 
         history_data = pd.read_sql(text("SELECT * FROM task_history"), db_session.connection())
+
         regression_model = PerformanceModel(logger=logger,
                                             core_thresholds=core_thresholds,
                                             memory_thresholds=memory_thresholds,
@@ -85,7 +84,7 @@ def update_history(update_task_id, epoch_id, logger, weights=None):
 
         estimated_running_time = -1
         while True:
-            params = regression_model.search_new_config(task_embedding, updated_knob_details)
+            params = regression_model.search_new_config(task_embedding, updated_knob_details, task_best_config)
             data = [params[knob] for knob in KNOBS]
             data.extend(task_embedding)
             predict_data = np.array(data).reshape(1, -1)

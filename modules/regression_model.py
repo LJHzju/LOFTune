@@ -44,13 +44,13 @@ class PerformanceModel:
             y = sorted_hist_data['duration'].values
             X_cal, X_train = X[:cal_size], X[cal_size:]
             y_cal, y_train = y[:cal_size], y[cal_size:]
-            self.qrf = RandomForestQuantileRegressor(n_estimators=10, max_depth=3, max_samples_leaf=None, n_jobs=-1)
+            self.qrf = RandomForestQuantileRegressor(n_estimators=10, max_depth=3, max_samples_leaf=None, n_jobs=-1, random_state=42)
             self.qrf.fit(X_train, y_train)
         else:
             X = hist_data[KNOBS + embedding_columns].values
             y = hist_data['duration'].values
             X_train, X_cal, y_train, y_cal = train_test_split(X, y, test_size=0.15)
-            self.qrf = RandomForestQuantileRegressor(n_jobs=-1)
+            self.qrf = RandomForestQuantileRegressor(n_jobs=-1, random_state=42)
             self.qrf.fit(X_train, y_train)
 
         cal_lower, cal_mean, cal_upper = self.predict_ci(X_cal)
@@ -102,6 +102,7 @@ class PerformanceModel:
             out = -self.predict(sample)[0]
         else:
             pred_lower, pred_mean, pred_upper = self.predict_ci(sample)
+            pred_lower, pred_mean, pred_upper = pred_lower[0], pred_mean[0], pred_upper[0]
             out = (pred_upper + self.q_hat) / (pred_lower - self.q_hat)
         return out
 
@@ -113,7 +114,7 @@ class PerformanceModel:
         m2 = total_memory - self.memory_thresholds[1]
         return c0, c1, m1, m2
 
-    def search_new_config(self, X_embedding, updated_knob_details):
+    def search_new_config(self, X_embedding, updated_knob_details, best_config=None):
         self.task_embedding = X_embedding
         ran = random.random()
         if ran < self.probabilities[0]:
@@ -126,7 +127,21 @@ class PerformanceModel:
             self.logger.info(f"Sample with probability {self.probabilities}, and generate config using uncertainty.")
 
         optuna.logging.set_verbosity(optuna.logging.WARNING)
-        sampler = TPESampler(constraints_func=lambda trial: self.resource_constraint(trial))
+        sampler = TPESampler(constraints_func=lambda trial: self.resource_constraint(trial), multivariate=True)
         study = optuna.create_study(direction="maximize", sampler=sampler)
-        study.optimize(lambda trial: self._try_sample(trial, updated_knob_details if self.is_minimum else KNOB_DETAILS), n_trials=100)
-        return study.best_params
+
+        details = updated_knob_details if self.is_minimum else KNOB_DETAILS
+        study.enqueue_trial(params=best_config)
+        study.optimize(lambda trial: self._try_sample(trial, details), n_trials=100)
+
+        all_trials = study.get_trials()
+        if study.best_value != all_trials[0].value:
+            return study.best_params
+        else:
+            params = None
+            best_value = -1000000000
+            for item in all_trials[1:]:
+                if item.value > best_value:
+                    best_value = item.value
+                    params = item.params
+            return params

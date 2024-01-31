@@ -1,10 +1,23 @@
+from sqlglot import parse_one
+from sqlglot.optimizer.scope import traverse_scope
 from copy import deepcopy
 
 
-ignore_types = ["\n", ",", ".", "'", "(", ")", ";", "alias"]
-ignore_children_types = ["string", "NULL"]
+IGNORE_TYPES = ["\n", ",", ".", "'", "(", ")", ";", "alias"]
+IGNORE_CHILDREN_TYPES = ["string", "NULL", "interval_expression", "time", "identifier"]
 
 unfold_expression_types = ['unary_expression', 'binary_expression', 'boolean_expression']
+
+
+def output_tree(node, level):
+    for i in range(0, level):
+        print("   ", end="")
+    print("(", end="")
+    print(f"{node['type']}", end="")
+    for child in node['children']:
+        print()
+        output_tree(child, level + 1)
+    print(")", end="")
 
 
 def gen_tree_str(node):
@@ -30,17 +43,18 @@ def swap_node(node_1, node_2):
 
 
 def modify_subtree_by_commutation(current_node):
+    # AND / OR
     if current_node['type'] == 'boolean_expression':
         if len(current_node['children']) == 3:
             operand_1, operand_2 = swap_node(current_node['children'][0], current_node['children'][2])
             current_node['children'][0] = operand_1
             current_node['children'][2] = operand_2
 
-    # + / *
     elif current_node['type'] == 'binary_expression':
         if len(current_node['children']) == 3:
             operator = current_node['children'][1]['type']
-            if operator in ['+', '*']:
+            # if operator in ['+', '*', '-', '/']:
+            if operator in ['arithmetic_operator']:
                 operand_1, operand_2 = swap_node(current_node['children'][0], current_node['children'][2])
                 current_node['children'][0] = operand_1
                 current_node['children'][2] = operand_2
@@ -164,31 +178,6 @@ def extract_explicit_join_subtree(node):
     return subtree, children_nodes
 
 
-def extract_select_clause_body_subtrees(node):
-    subtrees = []
-
-    child_types = [child['type'] for child in node['children']]
-    children = []
-    for index, child in enumerate(child_types):
-        if child == 'AS':
-            continue
-        else:
-            children.append([index])
-
-    for child in children:
-        root_children = []
-        for index in child:
-            root_children.append({"type": node['children'][index]['type'], "parent": node['type'], "children": node['children'][index]['children']})
-        separated_subtree = {
-            "type": node['type'],
-            "parent": node['parent'],
-            "children": root_children
-        }
-        subtrees.append(separated_subtree)
-
-    return subtrees
-
-
 def extract_implicit_join_subtrees(node):
     subtrees = []
 
@@ -216,6 +205,31 @@ def extract_implicit_join_subtrees(node):
         if child['type'] == 'select_subexpression':
             children_nodes.append(child)
     return subtrees, children_nodes
+
+
+def extract_select_clause_body_subtrees(node):
+    subtrees = []
+
+    child_types = [child['type'] for child in node['children']]
+    children = []
+    for index, child in enumerate(child_types):
+        if child == 'AS':
+            continue
+        else:
+            children.append([index])
+
+    for child in children:
+        root_children = []
+        for index in child:
+            root_children.append({"type": node['children'][index]['type'], "parent": node['type'], "children": node['children'][index]['children']})
+        separated_subtree = {
+            "type": node['type'],
+            "parent": node['parent'],
+            "children": root_children
+        }
+        subtrees.append(separated_subtree)
+
+    return subtrees
 
 
 def extract_subquery_root_subtree(node):
@@ -248,7 +262,6 @@ def extract_with_subtrees(node):
     subtrees = []
     children_nodes = []
     for child in node['children'][1:]:
-        # cte
         subtree, nodes = extract_subquery_root_subtree(child)
         separated_subtree = {
             "type": node['type'],
@@ -310,8 +323,9 @@ def extract_subtree(root):
             subtrees.extend(separated_subtrees)
             queue.extend(children_nodes)
 
-        elif current_node_type == 'select_clause':
+        elif current_node_type == 'select_clause': 
             subtree, children_nodes = extract_subtree_of_node(current_node)
+            subtrees.append(subtree)
             queue.extend(children_nodes)
 
         elif current_node_type == 'select_subexpression':
@@ -359,17 +373,39 @@ def convert_tree(root):
             current_node_json["type"] = "identifier"
             continue
 
-        elif current_node.type == "<>":
-            current_node_json["type"] = "!="
+        elif current_node.type in ["<", "<=", ">", ">="]:
+            current_node_json["type"] = "range_operator"
             continue
 
-        elif current_node.type in ignore_children_types:
+        elif current_node_json["type"] in ["+", "-", "*", "/"] and current_node_json["parent"] == "binary_expression":
+            current_node_json["type"] = "arithmetic_operator"
+            continue
+
+        elif current_node.type == "function_call":
+            function_name_index = 0 if current_node.children[0].type != 'LATERAL' else 1
+            function_name = str.upper(str(current_node.children[function_name_index].text, 'utf-8'))
+            if function_name == 'CAST':
+                target_data_type = ""
+                for child in current_node.children:
+                    if child.type == 'type':
+                        target_data_type = str.upper(str(child.children[0].text, 'utf8'))
+                        break
+
+                if target_data_type in ['DATE', 'TIME', 'DATETIME', 'TIMESTAMP', 'INTERVAL']:
+                    current_node_json["type"] = "time"
+                    continue
+                elif target_data_type in ['VARCHAR', 'NVARCHAR', 'CHAR', 'NCHAR', 'TEXT', 'NTEXT']:
+                    current_node_json["type"] = "string"
+                    continue
+                elif target_data_type in ['DECIMAL', 'INT']:
+                    current_node_json["type"] = "number"
+                    continue
+
+        elif current_node.type in IGNORE_CHILDREN_TYPES:
             continue
 
         for index, child in enumerate(current_node.children):
-            if child.type not in ignore_types:
-                queue.append(child)
-
+            if child.type not in IGNORE_TYPES:
                 child_json = {
                     "type": child.type,
                     "parent": current_node.type,
@@ -378,12 +414,14 @@ def convert_tree(root):
 
                 if current_node.type == "function_call":
                     if (index == 0 and child.type != 'LATERAL') or (index == 1 and current_node.children[0].type == 'LATERAL'):
+                        function_name = str.upper(str(child.text, 'utf-8'))
                         child_json = {
-                            "type": str.upper(str(child.text, 'utf-8')),
+                            "type": function_name,
                             "parent": current_node.type,
                             "children": []
                         }
 
+                queue.append(child)
                 current_node_json['children'].append(child_json)
                 queue_json.append(child_json)
 
@@ -400,11 +438,24 @@ def convert_subtrees_to_str(subtrees, is_sub_query):
     return subtree_strs
 
 
-def extract_subtrees(tree):
+def extract_join_tables_subtrees(sql):
+    subtrees = []
+    try:
+        parsed = parse_one(sql, read='spark')
+    except Exception as e:
+        print(f"parse error = {sql}")
+    for scope in traverse_scope(parsed):
+        for _ in range(len(scope.tables) - 1):
+            subtrees.append(f"from_clause(join_table_{_ + 1})")
+    return subtrees
+
+
+def extract_subtrees(tree, sql):
     root = convert_tree(tree.root_node)
 
     subtrees = extract_subtree(root)
     all_subtree_strs = convert_subtrees_to_str(subtrees, is_sub_query=False)
+    all_subtree_strs.extend(extract_join_tables_subtrees(sql))
 
     subtree_map = {}
     for subtree_str in all_subtree_strs:

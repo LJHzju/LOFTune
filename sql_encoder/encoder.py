@@ -1,9 +1,9 @@
 import os
 from tokenizers import Tokenizer
 
-from sql_encoder.data_utils import tensor_util
 from sql_encoder.data_utils.ast_parser import ASTParser
 from sql_encoder.model.tbcnn_encoder import TBCNNEncoder
+from sql_encoder.data_utils.tensor_util import *
 from config.encoder_config import *
 
 
@@ -35,10 +35,10 @@ class SQLEncoder:
         for sql_snippet in batch_sql_snippets:
             ast = self.ast_parser.parse(sql_snippet)
             tree_representation, _ = self.ast_parser.simplify_ast(ast, sql_snippet)
-            tree_indexes = tensor_util.transform_tree_to_index(tree_representation)
+            tree_indexes = transform_tree_to_index(tree_representation, _)
             batch_tree_indexes.append(tree_indexes)
 
-        tensors = tensor_util.trees_to_batch_tensors(batch_tree_indexes)
+        tensors = trees_to_batch_tensors(batch_tree_indexes)
         return tensors
 
     def encode(self, sqls):
@@ -51,3 +51,4 @@ class SQLEncoder:
             code_vector, _ = self.encoder(batch_node_type, batch_node_tokens, batch_children_index)
 
         return code_vector
+

@@ -5,16 +5,18 @@ This repository contains the source code for our paper: **LOFTune: A Low-overhea
 # Requirements
 ***
 - tokenizers 0.11.4
-- optuna 3.1.1
+- optuna 3.5.0
 - quantile-forest 1.1.3
 - scikit-learn 1.0.2
 - torch 1.12.1
+- tree-sitter 0.20.1
+- sqlglot 20.7.1
 ***
 
 # Datasets
 ***
-- [TPCDS(20G and 100G)](https://www.tpc.org/tpcds/)
-- [TPCH(20G)](https://www.tpc.org/tpch/)
+- [TPCDS(100G and 300G)](https://www.tpc.org/tpcds/)
+- [TPCH(100G)](https://www.tpc.org/tpch/)
 - [IMDB](http://homepages.cwi.nl/~boncz/job/imdb.tgz)
 
 # Structure

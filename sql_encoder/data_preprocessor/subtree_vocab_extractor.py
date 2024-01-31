@@ -1,3 +1,7 @@
+import sys
+from pathlib import Path
+sys.path.append(str(Path(__file__).resolve().parent.parent))
+
 import os
 import concurrent.futures
 from tokenizers import Tokenizer
@@ -10,13 +14,14 @@ from sql_encoder.data_preprocessor.subtree_util import extract_subtrees
 def process_file(file_path):
     ast_parser = ASTParser()
     with open(file_path, "r", errors="ignore", encoding='UTF-8') as f:
-        sqls = f.readlines()
+        sqls = f.read().splitlines()
         print(f"load {file_path} completed...", flush=True)
         result = []
         for sql in sqls:
-            tree = ast_parser.parse(sql)
-            subtrees = extract_subtrees(tree)
-            result.extend(subtrees.keys())
+            if sql not in ['', '\n']:
+                tree = ast_parser.parse(sql)
+                subtrees = extract_subtrees(tree, sql)
+                result.extend(subtrees.keys())
         return file_path, result
 
 
@@ -39,7 +44,7 @@ class SubtreeVocabExtractor:
                 file_path = os.path.join(subdir, file)
                 file_paths.append(file_path)
 
-        with concurrent.futures.ProcessPoolExecutor(max_workers=int(os.cpu_count() / 2)) as executor:
+        with concurrent.futures.ProcessPoolExecutor(max_workers=int(3 * os.cpu_count() / 4)) as executor:
             results = executor.map(process_file, file_paths)
 
             for file_path, result in results:

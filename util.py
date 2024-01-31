@@ -3,6 +3,7 @@ import re
 import json
 import numpy as np
 import pandas as pd
+import torch
 
 from hdfs import Client
 
@@ -75,20 +76,20 @@ def load_info_from_lines(lines_of_apps):
 
 
 def gen_task_embedding(task_id):
-    if sql_embedding_dim == 768:
-        df = pd.read_csv(f"{cwd}/data/bert-embedding/{workload}_{data_size}G_{mode}.csv", index_col='name')
+    if encoding_model == 'bert':
+        df = pd.read_csv(f"{cwd}/data/bert-embedding/{workload}_{mode}.csv", index_col='name')
         sql_embedding = df.loc[task_id].values.tolist()
     else:
         sqls = task_id.split('_')
-        sql = ''
+        sql_embeddings = []
         for sql_id in sqls:
-            try:
-                with open(f"{sql_base_path}/{str.lower(workload)}/{sql_id}.sql") as sql_file:
-                    sql += sql_file.read()
-            except FileNotFoundError:
-                print(f"The sql file of {sql_id} is not found, skipping.")
-                return None
-        sql_embedding = encode(sql)
+            with open(f"{sql_base_path}/{str.lower(workload)}/{sql_id}.sql") as sql_file:
+                sql = sql_file.read()
+                sql_embeddings.append(encode(sql))
+        sql_embeddings = torch.tensor(sql_embeddings)
+        sql_embedding = torch.max(sql_embeddings, dim=0)[0].tolist()
+        norm = np.linalg.norm(sql_embedding)
+        sql_embedding = list(map(lambda x: x / norm, sql_embedding))
     return {f'task_embedding_{i}': sql_embedding[i] for i in range(0, sql_embedding_dim)}
 
 
@@ -126,6 +127,9 @@ def add_embedding_to_apps(apps, old_embeddings, logger=None):
 
 
 def clear_scale_dict(origin_dict):
+    """
+        remove scale('k','m','g',...) from dict
+    """
     for key, value in origin_dict.items():
         val_type = KNOB_DETAILS[key]['type']
         if val_type == KnobType.INTEGER and isinstance(value, str):
@@ -140,6 +144,9 @@ def clear_scale_dict(origin_dict):
 
 
 def add_scale_dict(origin_dict):
+    """
+        add scale('k','m','g',...) to dict
+    """
     new_dict = copy.deepcopy(origin_dict)
     for knob, details in KNOB_DETAILS.items():
         if knob not in new_dict.keys():

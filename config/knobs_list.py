@@ -79,6 +79,14 @@ if data_size < 50:
     RESOURCE_KNOB_DETAILS['spark.executor.cores']['range'] = [2, 8, 1]
     RESOURCE_KNOB_DETAILS['spark.executor.instances']['range'] = [2, 8, 1]
     RESOURCE_KNOB_DETAILS['spark.executor.memory']['range'] = [4 * 1024, 12 * 1024, 64]
+elif data_size > 250:
+    RESOURCE_KNOB_DETAILS['spark.driver.cores']['range'] = [3, 12, 1]
+    RESOURCE_KNOB_DETAILS['spark.driver.memory']['range'] = [4 * 1024, 20 * 1024, 64]
+    RESOURCE_KNOB_DETAILS['spark.executor.cores']['range'] = [3, 12, 1]
+    RESOURCE_KNOB_DETAILS['spark.executor.instances']['range'] = [3, 12, 1]
+    RESOURCE_KNOB_DETAILS['spark.executor.memory']['range'] = [4 * 1024, 20 * 1024, 64]
+    RESOURCE_KNOB_DETAILS['spark.memory.offHeap.size']['range'] = [1 * 1024, 4 * 1024, 64]
+
 
 NON_RESOURCE_KNOB_DETAILS = {
     # Size of each piece of a block for TorrentBroadcastFactory

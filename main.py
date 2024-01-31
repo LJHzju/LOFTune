@@ -42,14 +42,22 @@ if __name__ == "__main__":
                                  'recommend-config-alternately'],
                         help='Decide what to do.')
     parser.add_argument('--mode', type=str, default='single', choices=['single', 'multi'])
-    parser.add_argument('--task_id', type=str, default='', help='The workload id (e.g., q2, q9, q11) for operation.')
+    parser.add_argument('--model', type=str, default='tbcnn', choices=['tbcnn', 'bert', 'tuneful', 'rover', 'random'])
+    parser.add_argument('--task_suffix', type=str, default='')
+    parser.add_argument('--tradeoff', type=float, default=0.4)
+    parser.add_argument('--task_id', type=str, default='', help='The task for operation.')
     parser.add_argument('--epochs', type=int, default=2, help='The number of sampled configs for each history task.')
-    parser.add_argument('--random_epochs', type=int, default=10, help='The number of sampled configs for each history task.')
+    parser.add_argument('--random_epochs', type=int, default=10,
+                        help='The number of sampled configs for each history task.')
+    parser.add_argument('--per_round', type=int, default=1, help='The number of sampled configs for each history task.')
     opt = parser.parse_args()
 
     config.config.workload = opt.workload
     config.config.data_size = opt.data_size
     config.config.mode = opt.mode
+    config.config.encoding_model = opt.model
+    config.config.task_suffix = opt.task_suffix
+    config.config.rate_tradeoff = opt.tradeoff
 
     conf_check()
 

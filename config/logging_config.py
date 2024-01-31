@@ -10,6 +10,9 @@ if not os.path.exists(f'{BASE_DIR}/logs/history_tuner/'):
 if not os.path.exists(f'{BASE_DIR}/logs/recommender/'):
     os.makedirs(f'{BASE_DIR}/logs/recommender/')
 
+if not os.path.exists(f'{BASE_DIR}/logs/trainer/'):
+    os.makedirs(f'{BASE_DIR}/logs/trainer/')
+
 LOGGING_CONFIG = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -36,6 +39,14 @@ LOGGING_CONFIG = {
             'maxBytes': 1024 * 1024 * 5,
             'backupCount': 5,
             'formatter': 'standard',
+        },
+        'trainer': {
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': f'{BASE_DIR}/logs/trainer/{datetime.date.today()}.log',
+            'maxBytes': 1024 * 1024 * 5,
+            'backupCount': 5,
+            'formatter': 'standard',
         }
     },
     'loggers': {
@@ -49,5 +60,10 @@ LOGGING_CONFIG = {
             'level': 'INFO',
             'propagate': False,
         },
+        'trainer': {
+            'handlers': ['trainer'],
+            'level': 'INFO',
+            'propagate': False,
+        }
     }
 }

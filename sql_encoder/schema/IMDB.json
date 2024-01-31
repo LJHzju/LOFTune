@@ -1,0 +1,152 @@
+{
+  "aka_name": {
+    "id": "integer",
+    "person_id": "integer",
+    "name": "string",
+    "imdb_index": "varchar(12)",
+    "name_pcode_cf": "varchar(5)",
+    "name_pcode_nf": "varchar(5)",
+    "surname_pcode": "varchar(5)",
+    "md5sum": "varchar(32)"
+  },
+  "aka_title": {
+    "id": "integer",
+    "movie_id": "integer",
+    "title": "string",
+    "imdb_index": "varchar(12)",
+    "kind_id": "integer",
+    "production_year": "integer",
+    "phonetic_code": "varchar(5)",
+    "episode_of_id": "integer",
+    "season_nr": "integer",
+    "episode_nr": "integer",
+    "note": "string",
+    "md5sum": "varchar(32)"
+  },
+  "cast_info": {
+    "id": "integer",
+    "person_id": "integer",
+    "movie_id": "integer",
+    "person_role_id": "integer",
+    "note": "string",
+    "nr_order": "integer",
+    "role_id": "integer"
+  },
+  "char_name": {
+    "id": "integer",
+    "name": "string",
+    "imdb_index": "varchar(12)",
+    "imdb_id": "integer",
+    "name_pcode_nf": "varchar(5)",
+    "surname_pcode": "varchar(5)",
+    "md5sum": "varchar(32)"
+  },
+  "comp_cast_type": {
+    "id": "integer",
+    "kind": "varchar(32)"
+  },
+  "company_name": {
+    "id": "integer",
+    "name": "string",
+    "country_code": "varchar(255)",
+    "imdb_id": "integer",
+    "name_pcode_nf": "varchar(5)",
+    "name_pcode_sf": "varchar(5)",
+    "md5sum": "varchar(32)"
+  },
+  "company_type": {
+    "id": "integer",
+    "kind": "varchar(32)"
+  },
+  "complete_cast": {
+    "id": "integer",
+    "movie_id": "integer",
+    "subject_id": "integer",
+    "status_id": "integer"
+  },
+  "info_type": {
+    "id": "integer",
+    "info": "varchar(32)"
+  },
+  "keyword": {
+    "id": "integer",
+    "keyword": "string",
+    "phonetic_code": "varchar(5)"
+  },
+  "kind_type": {
+    "id": "integer",
+    "kind": "varchar(15)"
+  },
+  "link_type": {
+    "id": "integer",
+    "link": "varchar(32)"
+  },
+  "movie_companies": {
+    "id": "integer",
+    "movie_id": "integer",
+    "company_id": "integer",
+    "company_type_id": "integer",
+    "note": "string"
+  },
+  "movie_info": {
+    "id": "integer",
+    "movie_id": "integer",
+    "info_type_id": "integer",
+    "info": "string",
+    "note": "string"
+  },
+  "movie_info_idx": {
+    "id": "integer",
+    "movie_id": "integer",
+    "info_type_id": "integer",
+    "info": "string",
+    "note": "string"
+  },
+  "movie_keyword": {
+    "id": "integer",
+    "movie_id": "integer",
+    "keyword_id": "integer"
+  },
+  "movie_link": {
+    "id": "integer",
+    "movie_id": "integer",
+    "linked_movie_id": "integer",
+    "link_type_id": "integer"
+  },
+  "name": {
+    "id": "integer",
+    "name": "string",
+    "imdb_index": "varchar(12)",
+    "imdb_id": "integer",
+    "gender": "varchar(1)",
+    "name_pcode_cf": "varchar(5)",
+    "name_pcode_nf": "varchar(5)",
+    "surname_pcode": "varchar(5)",
+    "md5sum": "varchar(32)"
+  },
+  "person_info": {
+    "id": "integer",
+    "person_id": "integer",
+    "info_type_id": "integer",
+    "info": "string",
+    "note": "string"
+  },
+  "role_type": {
+    "id": "integer",
+    "role": "varchar(32)"
+  },
+  "title": {
+    "id": "integer",
+    "title": "string",
+    "imdb_index": "varchar(12)",
+    "kind_id": "integer",
+    "production_year": "integer",
+    "imdb_id": "integer",
+    "phonetic_code": "varchar(5)",
+    "episode_of_id": "integer",
+    "season_nr": "integer",
+    "episode_nr": "integer",
+    "series_years": "varchar(49)",
+    "md5sum": "varchar(32)"
+  }
+}
